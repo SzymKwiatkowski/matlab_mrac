@@ -1,0 +1,13 @@
+controller/
+libraries/
+linearAiframe/
+nonlinearAirframe/
+resources/
+support/
+tasks/
+utilities/
+work/
+*.prj
+mainModels/
+tests/
+linearAirframe/
