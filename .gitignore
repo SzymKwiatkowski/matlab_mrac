@@ -11,3 +11,4 @@ work/
 mainModels/
 tests/
 linearAirframe/
+*.asv
