@@ -3,5 +3,5 @@
 ## TODO
 - [x] linear controller and linear model
 - [x] linear controller and linear mismatched model
-- [x] mrac and linear
-- [ ] mrac and non linear
+- [ ] mrac and linear model
+- [ ] mrac and non linear model

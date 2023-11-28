@@ -48,8 +48,8 @@ B = [O84;       % Jacobian Matrix B
 %% Model Mismatch (the actual plant)
 global A_act B_act
 A_act = A;
-m_act = 1.5 * m;
-l_act = 1.5 * l;
+m_act = 1. * m;
+l_act = 1. * l;
 Delta_act = [   Ka/m_act,     Ka/m_act,     Ka/m_act,    Ka/m_act;
                0, -Ka*l_act/Ix,        0, Ka*l_act/Ix;
          Ka*l_act/Iy,        0, -Ka*l_act/Iy,       0;
@@ -77,7 +77,7 @@ r = [1,1,1,0,0,0,0,0,0,0,0,0]';     % the desired state values
 
 %% Nonlinear Adaptive Controller & Nonlinear Plant
 global lambda gamma_x gamma_r gamma_alpha;
-lambda = 0.9; % the parameter in the coord transform
+lambda = 0.01; % the parameter in the coord transform
 
 % Some Preparation
 global A_ref B_ref K_ref Kr_nonlin_ctr r_pos Am Bm P;
