@@ -17,7 +17,7 @@ x8_prime = x8 + lambda*(sin(x4)*sin(x5)*sin(x6)*x10 + cos(x4)*cos(x6)*x10 - cos(
 x9_prime = x9 + lambda*(sin(x4)*cos(x5)*x10 + sin(x5)*x11);
 
 x_prime = [x1_prime;x2_prime;x3_prime;x7_prime;x8_prime;x9_prime];
-%x_prime = reshape(x(83:88),[6,1]);
+% x_prime = reshape(x(83:88),[6,1]);
 
 % transform the desired ref states r from the original
 % coordinates to the new transformed coordinates (prime)
@@ -43,20 +43,20 @@ phi_x = [x10*x10 + x11*x11;
          x10 * x12;
          sin(x5)];
 
-xt = reshape(x(1:12),[12,1]);
+% xt = reshape(x(1:12),[12,1]);
 xm = reshape(x(13:18),[6,1]);
 Kx = [x(19:22); x(23:26); x(27:30); x(31:34); x(35:38); x(39:42)];
 Kr = [x(43:46); x(47:50); x(51:54); x(55:58)];
 alpha_hat = [x(59:62); x(63:66); x(67:70); x(71:74) ; x(75:78) ; x(79:82)];
 
-
+% xm13 = x(13); xm14 = x(14); xm15 = x(15); xm16 = x(16); xm17 = x(17); xm18 = x(18);
 % The error signal for the position states (in the new transformed coords)
-% xm1_prime = xm(1) + lambda*(-cos(x4)*sin(x5)*cos(x6) - sin(x4)*sin(x6));
-% xm2_prime = xm(2) + lambda*(-cos(x4)*sin(x5)*sin(x6) + sin(x4)*cos(x6));
-% xm3_prime = xm(3) - lambda*cos(x4)*cos(x5);
-% xm4_prime = xm(4) + lambda*(sin(x4)*sin(x5)*cos(x6)*x10 - cos(x4)*sin(x6)*x10 - cos(x5)*cos(x6)*x11);
-% xm5_prime = xm(5) + lambda*(sin(x4)*sin(x5)*sin(x6)*x10 + cos(x4)*cos(x6)*x10 - cos(x5)*sin(x6)*x11);
-% xm6_prime = xm(6) + lambda*(sin(x4)*cos(x5)*x10 + sin(x5)*x11);
+% xm1_prime = xm13 + lambda*(-cos(x4)*sin(x5)*cos(x6) - sin(x4)*sin(x6));
+% xm2_prime = xm14 + lambda*(-cos(x4)*sin(x5)*sin(x6) + sin(x4)*cos(x6));
+% xm3_prime = xm15 - lambda*cos(x4)*cos(x5);
+% xm4_prime = xm16 + lambda*(sin(x4)*sin(x5)*cos(x6)*x10 - cos(x4)*sin(x6)*x10 - cos(x5)*cos(x6)*x11);
+% xm5_prime = xm17 + lambda*(sin(x4)*sin(x5)*sin(x6)*x10 + cos(x4)*cos(x6)*x10 - cos(x5)*sin(x6)*x11);
+% xm6_prime = xm18 + lambda*(sin(x4)*cos(x5)*x10 + sin(x5)*x11);
 % xm_prime = [xm1_prime; xm2_prime; xm3_prime; xm4_prime; xm5_prime; xm6_prime];
 e_prime = x_prime - xm;
 

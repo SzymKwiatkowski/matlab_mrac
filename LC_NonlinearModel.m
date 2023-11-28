@@ -2,6 +2,8 @@ function xdot = LC_NonlinearModel(t,x)
     global K Ka Km Kr_lin_ctr r l m g Ix Iy Iz;
     x1 = x(1); x2 = x(2); x3 = x(3); x4 = x(4); x5 = x(5); x6 = x(6);
     x7 = x(7); x8 = x(8); x9 = x(9); x10 = x(10); x11 = x(11); x12 = x(12);
+
+    disp(t)
     
     ut = -K*x - Kr_lin_ctr*r;
     T = Ka*sum(ut);

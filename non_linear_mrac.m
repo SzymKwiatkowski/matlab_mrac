@@ -48,8 +48,8 @@ B = [O84;       % Jacobian Matrix B
 %% Model Mismatch (the actual plant)
 global A_act B_act
 A_act = A;
-m_act = 1. * m;
-l_act = 1. * l;
+m_act = 1.5 * m;
+l_act = 1.5 * l;
 Delta_act = [   Ka/m_act,     Ka/m_act,     Ka/m_act,    Ka/m_act;
                0, -Ka*l_act/Ix,        0, Ka*l_act/Ix;
          Ka*l_act/Iy,        0, -Ka*l_act/Iy,       0;
@@ -76,8 +76,9 @@ global r;
 r = [1,1,1,0,0,0,0,0,0,0,0,0]';     % the desired state values
 
 %% Nonlinear Adaptive Controller & Nonlinear Plant
-global lambda gamma_x gamma_r gamma_alpha;
+global lambda gamma_x gamma_r gamma_alpha gains;
 lambda = 0.01; % the parameter in the coord transform
+gains = lambda;
 
 % Some Preparation
 global A_ref B_ref K_ref Kr_nonlin_ctr r_pos Am Bm P;
@@ -88,7 +89,7 @@ B_ref(4,3) = lambda*Ka*l/Iy;
 B_ref(5,2) = -lambda*Ka*l/Ix;
 B_ref(5,4) = lambda*Ka*l/Ix;
 B_ref(6,:) = [-Ka/m , -Ka/m, -Ka/m, -Ka/m];
-desired_poles = [-1,-2,-3,-4,-4,-3];
+desired_poles = -linspace(1,3,6);%[-1,-2,-3,-4,-4,-3];
 K_ref = place(A_ref,B_ref,desired_poles);
 Kr_nonlin_ctr = B_ref\(A_ref-B_ref*K_ref);
 
@@ -96,19 +97,19 @@ Kr_nonlin_ctr = B_ref\(A_ref-B_ref*K_ref);
 Am = A_ref - B_ref*K_ref;
 Bm = B_ref;
 % matrix Q , P
-Q = 180*eye(6);
+Q = 600*eye(6);
 P = lyap(Am',Q);
 % adaptation rates
-gamma_x = 80*eye(6);
-gamma_r = 80*eye(4);
-gamma_alpha = 80*eye(6);
+gamma_x = 0.005*eye(6);
+gamma_r = 0.005*eye(4);
+gamma_alpha = 0.005*eye(6);
 
 % The desired values for the 6 position states
 % x1,x2,x3,x7,x8,x9 (in the original coords)
-r_pos = [0;0;1;0;0;0];
+r_pos = [1;1;1;0;0;0];
 
 % start the simulation
-tspan = [0, 0.8];
+t = 0 : 0.001 : 5;
 x0 = zeros(88,1);
 % initial conditions: x(0) = xm(0) = 0
 % convert xm(0) to the new transformed coordinates
@@ -132,7 +133,9 @@ temp2 = [lambda , g , 0 , 0 , 0 , 0;
 alpha_star = (temp1\temp2)';
 x0(59:82) = [alpha_star(1,:) , alpha_star(2,:) , alpha_star(3,:) , alpha_star(4,:) , alpha_star(5,:) , alpha_star(6,:)]';
 %% Calculate result
-[t, x] = ode45(@AC_NonlinearModel, tspan, x0);
+%options = odeset('RelTol',1e-4,'Stats','on','OutputFcn', @odeplot);
+[t, x] = ode45(@AC_NonlinearModel, t, x0);
+% x = ode4(@AC_NonlinearModel, t, x0);
 
 %% Plots
 xt = x(:,1:12);
@@ -143,7 +146,7 @@ for i = 1:6
     figure;
     hold on
     plot(t,x_prime(:,i));
-    plot(t,xm(:,i));
+    plot(t,xm(:,i), 'LineStyle', '--');
     xlabel('t');
     legend(['x_{' num2str(i) '}(t)'],['xm_{' num2str(i) '}(t)']);
     title('x(t) and xm(t) for the 6 position states (in the transformed coordinates)');

@@ -1,4 +1,4 @@
-close all; clear all;
+close all; clear all; clc;
 
 %% Drone Parameter Values
 global Ka Km m Ix Iy Iz g l;
@@ -16,7 +16,7 @@ Iz = 0.1366e-3;
 l = 0.0624;        %Distance from rotor to the center of Drone
 m = 0.068;
 
- %% Linearized System arround the equilibrium point (Hover)
+%% Linearized System arround the equilibrium point (Hover)
 global K A B;
 
 O6 = zeros(6);
@@ -44,12 +44,16 @@ Delta = [Ka/m,      Ka/m,           Ka/m,       Ka/m;
        
 B = [O84;       % Jacobian Matrix B
      Delta];
- 
+
+%% Check if controllable
+Co = ctrb(A,B);
+unco = length(A) - rank(Co)
+
 %% Model Mismatch (the actual plant)
 global A_act B_act
 A_act = A;
-m_act = 1.5 * m;
-l_act = 1.5 * l;
+m_act = 1 * m;
+l_act = 1 * l;
 Delta_act = [   Ka/m_act,     Ka/m_act,     Ka/m_act,    Ka/m_act;
                0, -Ka*l_act/Ix,        0, Ka*l_act/Ix;
          Ka*l_act/Iy,        0, -Ka*l_act/Iy,       0;
@@ -57,11 +61,15 @@ Delta_act = [   Ka/m_act,     Ka/m_act,     Ka/m_act,    Ka/m_act;
 
 B_act = [O84;
          Delta_act];
- 
+
+%% Check if controllable
+Co = ctrb(A_act,B_act);
+unco = length(A) - rank(Co)
+
 %% Pole Placement
 global Kr_lin_ctr;
 
-desired_poles = -linspace(1,12,12);
+desired_poles = -linspace(0.25,2.0,12);
 K = place(A,B,desired_poles);
 Kr_lin_ctr = B\(A-B*K);
 
@@ -75,31 +83,54 @@ EigenValues = array2table(eig(A - B*K));
 global r;
 r = [1,1,1,0,0,0,0,0,0,0,0,0]';     % the desired state values
 
+%% Linear Controller & Nonlinear Plant
+tspan = [0,3.5];
+x0 = zeros(1,12);
+[t_lc_nlp, x_lc_nlp] = ode45(@LC_NonlinearModel, tspan, x0);
 
-%% Linear Adaptive Controller & Linearized Plant (Mismatched Parameters)
-t = 0 : 0.001 : 5;
-x0 = zeros(88,1);
-% initial conditions: x(0) = xm(0) = 0
-% use the ideal linearized plant to obtain kx(0) and kr(0)
-temp_K = -K';
-x0(25:72) = [temp_K(1,:) temp_K(2,:) temp_K(3,:) temp_K(4,:) temp_K(5,:) temp_K(6,:) temp_K(7,:) temp_K(8,:) temp_K(9,:) temp_K(10,:) temp_K(11,:) temp_K(12,:)]';
-x0(73) = 1;
-x0(78) = 1;
-x0(83) = 1;
-x0(88) = 1;
-[t, x] = ode45(@AC_LinearMismatchedModel, t, x0);
-% x = ode4(@AC_LinearMismatchedModel, t, x0);
-x_adap_act = x(:,1:12);
-xm_adap_act = x(:,13:24);
 %% Plots
-for i = 1:12
-    figure;
-    hold on
-    plot(t,x_adap_act(:,i));
-    plot(t,xm_adap_act(:,i), 'LineStyle', '--');
-    legend(['x-adaptive_{' num2str(i) '}(t)'], ['xm_{' num2str(i) '}(t)']);
-    xlabel('t');
-    title('Adaptive & Linear Controller with Imperfect Plant: x-adaptive(t), x-linear(t), xm(t)');
-    grid on;
-    hold off
-end
+figure;
+subplot(4,1,1);
+hold on
+plot(t_lc_nlp, x_lc_nlp(:,1));
+plot(t_lc_nlp, x_lc_nlp(:,2));
+plot(t_lc_nlp, x_lc_nlp(:,3));
+title('State Trajectories of Fixed-gain Linear Controller with Nonlinear Plant');
+legend('x_{1}(t)','x_{2}(t)','x_{3}(t)');
+xlabel('t');
+ylabel('Magnitude');
+grid on
+
+subplot(4,1,2);
+hold on
+plot(t_lc_nlp, x_lc_nlp(:,4));
+plot(t_lc_nlp, x_lc_nlp(:,5));
+plot(t_lc_nlp, x_lc_nlp(:,6));
+legend('x_{4}(t)','x_{5}(t)','x_{6}(t)');
+xlabel('t');
+ylabel('Magnitude');
+grid on
+
+subplot(4,1,3);
+hold on
+plot(t_lc_nlp, x_lc_nlp(:,7));
+plot(t_lc_nlp, x_lc_nlp(:,8));
+plot(t_lc_nlp, x_lc_nlp(:,9));
+legend('x_{7}(t)','x_{8}(t)','x_{9}(t)');
+xlabel('t');
+ylabel('Magnitude');
+grid on
+
+subplot(4,1,4);
+hold on
+plot(t_lc_nlp, x_lc_nlp(:,10));
+plot(t_lc_nlp, x_lc_nlp(:,11));
+plot(t_lc_nlp, x_lc_nlp(:,12));
+legend('x_{10}(t)','x_{11}(t)','x_{12}(t)');
+xlabel('t');
+ylabel('Magnitude');
+grid on
+
+hold off
+
+
